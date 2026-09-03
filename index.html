@@ -2,22 +2,18 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <!-- スマホの画面幅にぴったり合わせる設定 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>あのスクショどこいった？</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
-      background-color: #FDFBF7; /* ウォームホワイト */
+      background-color: #FDFBF7;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       color: #333333;
     }
 
-    /* 上部イラスト画像（スマホにフィット） */
     .header-banner {
       width: 100%;
       max-height: 200px;
@@ -26,7 +22,6 @@
       border-bottom: 2px solid #CBB69D;
     }
 
-    /* タグ一覧（スマホで横スクロール可能に） */
     .tag-container {
       display: flex;
       gap: 8px;
@@ -36,38 +31,29 @@
       -webkit-overflow-scrolling: touch;
       background-color: #FDFBF7;
     }
-
-    /* スクロールバーを隠してすっきり見せる設定 */
-    .tag-container::-webkit-scrollbar {
-      display: none;
-    }
+    .tag-container::-webkit-scrollbar { display: none; }
 
     .tag-btn {
       flex: 0 0 auto;
       padding: 8px 14px;
       border-radius: 20px;
-      border: 1px solid #CBB69D; /* カフェラテカラー */
+      border: 1px solid #CBB69D;
       background-color: #F5F2EB;
-      color: #4A5D4E; /* 深みのあるグリーン */
+      color: #4A5D4E;
       font-size: 13px;
       cursor: pointer;
       transition: all 0.2s ease;
     }
 
-    /* 選択中のタグ（ボタニカル・アクセント） */
     .tag-btn.active {
-      background-color: #7C9885; /* セージグリーン */
+      background-color: #7C9885;
       color: #FFFFFF;
       border-color: #7C9885;
       font-weight: bold;
       box-shadow: 0 2px 5px rgba(124, 152, 133, 0.3);
     }
 
-    /* スマホでタップしやすいスクショ貼り付け・追加エリア */
-    .upload-section {
-      margin: 16px;
-    }
-
+    .upload-section { margin: 16px; }
     .upload-area {
       border: 2px dashed #CBB69D;
       border-radius: 16px;
@@ -77,61 +63,43 @@
       color: #7C9885;
       font-weight: bold;
       cursor: pointer;
-      transition: background-color 0.2s ease;
     }
 
-    .upload-area:active {
-      background-color: #F0ECE1;
-    }
+    .upload-icon { font-size: 28px; margin-bottom: 6px; }
+    .upload-text { font-size: 14px; display: block; }
+    .upload-subtext { font-size: 11px; color: #888888; font-weight: normal; margin-top: 4px; display: block; }
+    #file-input { display: none; }
 
-    .upload-icon {
-      font-size: 28px;
-      margin-bottom: 6px;
-    }
-
-    .upload-text {
-      font-size: 14px;
-      display: block;
-    }
-
-    .upload-subtext {
-      font-size: 11px;
-      color: #888888;
-      font-weight: normal;
-      margin-top: 4px;
-      display: block;
-    }
-
-    /* 非表示のファイル入力 */
-    #file-input {
-      display: none;
-    }
-
-    /* スクショが並ぶプレビューギャラリー */
+    /* スクショギャラリー */
     .gallery-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr); /* スマホ画面で2列表示 */
+      grid-template-columns: repeat(2, 1fr);
       gap: 12px;
       padding: 0 16px 32px 16px;
     }
 
     .gallery-item {
+      position: relative;
       width: 100%;
-      aspect-ratio: 9 / 16; /* スマホスクショの縦長比率 */
+      aspect-ratio: 9 / 16;
       border-radius: 12px;
-      object-fit: cover;
+      overflow: hidden;
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
       border: 1px solid #E5DFD5;
+      background-color: #eee;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
   </style>
 </head>
 <body>
 
-  <!-- 1. トップのイラスト画像 -->
-  <!-- ※イラスト画像を「main-illust.jpg」という名前で同じフォルダに保存してね -->
-  <img src="sukusyo.png" alt="あのスクショどこいった？" class="header-banner" onerror="this.style.display='none'">
+  <img src="main-illust.jpg" alt="あのスクショどこいった？" class="header-banner" onerror="this.style.display='none'">
 
-  <!-- 2. ジャンル選択タグ（スマホで横スライドできます） -->
   <div class="tag-container">
     <button class="tag-btn active">🍳 レシピ</button>
     <button class="tag-btn">📰 ニュース</button>
@@ -144,7 +112,6 @@
     <button class="tag-btn">📁 その他</button>
   </div>
 
-  <!-- 3. スクショ貼り付け・ファイル選択エリア -->
   <div class="upload-section">
     <label for="file-input">
       <div class="upload-area">
@@ -156,10 +123,52 @@
     <input type="file" id="file-input" accept="image/*" multiple>
   </div>
 
-  <!-- 4. 保存したスクショ一覧表示エリア -->
-  <div class="gallery-grid" id="gallery">
-    <!-- ここに選択した画像がどんどん追加されます -->
-  </div>
+  <div class="gallery-grid" id="gallery"></div>
 
+  <!-- 画像読み込み・表示用のJavaScript -->
+  <script>
+    const fileInput = document.getElementById('file-input');
+    const gallery = document.getElementById('gallery');
+
+    // ページ読み込み時に保存済み画像をロード
+    window.addEventListener('DOMContentLoaded', loadSavedImages);
+
+    fileInput.addEventListener('change', (e) => {
+      const files = e.target.files;
+      if (!files.length) return;
+
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const imageDataUrl = event.target.result;
+          displayImage(imageDataUrl);
+          saveImageToStorage(imageDataUrl);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    function displayImage(url) {
+      const item = document.createElement('div');
+      item.className = 'gallery-item';
+      item.innerHTML = `<img src="${url}" alt="スクショ">`;
+      gallery.prepend(item); // 新しい画像を先頭に追加
+    }
+
+    function saveImageToStorage(url) {
+      const saved = JSON.parse(localStorage.getItem('my_screenshots') || '[]');
+      saved.push(url);
+      try {
+        localStorage.setItem('my_screenshots', JSON.stringify(saved));
+      } catch (err) {
+        alert('容量の上限に達したため、これ以上ローカル保存できません。');
+      }
+    }
+
+    function loadSavedImages() {
+      const saved = JSON.parse(localStorage.getItem('my_screenshots') || '[]');
+      saved.forEach(url => displayImage(url));
+    }
+  </script>
 </body>
 </html>
