@@ -4,6 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>あのスクショどこいった？</title>
+
+  <!-- OGP（SNS共有時の設定） -->
+  <meta property="og:title" content="あのスクショどこいった？">
+  <meta property="og:description" content="スクショ迷子を救出せよ！">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="main-illust.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="あのスクショどこいった？">
+  <meta name="twitter:description" content="スクショ迷子を救出せよ！">
+  <meta name="twitter:image" content="main-illust.jpg">
+
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -249,7 +260,6 @@
 
   <script>
     let db;
-    // 初期表示ジャンルを「レシピ」「行きたい場所」「欲しいもの」「豆知識」に更新！
     let defaultGenres = ['🍳 レシピ', '📍 行きたい場所', '🛍️ 欲しいもの', '💡 豆知識'];
     let genres = JSON.parse(localStorage.getItem('custom_genres')) || defaultGenres;
     let currentGenre = genres[0] || '🍳 レシピ';
@@ -290,7 +300,6 @@
         titleSpan.textContent = genre;
         btn.appendChild(titleSpan);
 
-        // ジャンル削除用ボタン
         const deleteSpan = document.createElement('span');
         deleteSpan.className = 'delete-tag-icon';
         deleteSpan.textContent = '✕';
@@ -309,7 +318,6 @@
         tagContainer.appendChild(btn);
       });
 
-      // 「＋ 追加」ボタンを末尾に追加
       const addBtn = document.createElement('button');
       addBtn.className = 'add-tag-btn';
       addBtn.textContent = '＋ 追加';
@@ -319,7 +327,6 @@
       uploadLabel.textContent = `「${currentGenre}」にスクショを追加`;
     }
 
-    // 新しいジャンルを追加する機能
     function addNewGenre() {
       const newGenre = prompt('新しいジャンル名を入力してね（例：⚽️ 趣味、✈️ 旅行）：');
       if (newGenre && newGenre.trim() !== '') {
@@ -336,7 +343,6 @@
       }
     }
 
-    // ジャンルを削除する機能
     function deleteGenre(genreToDelete) {
       if (genres.length <= 1) {
         alert('ジャンルは最低1つ必要だよ！');
@@ -355,7 +361,6 @@
       }
     }
 
-    // 重複防止処理付きファイル選択
     fileInput.addEventListener('change', (e) => {
       const files = Array.from(e.target.files);
       if (!files.length) return;
@@ -381,7 +386,6 @@
       fileInput.value = '';
     });
 
-    // ギャラリー描画
     function renderGallery() {
       if (!db) return;
       gallery.innerHTML = '';
@@ -410,7 +414,6 @@
       };
     }
 
-    // 削除機能
     function deleteImage(id) {
       if (!confirm('このスクショを削除しますか？')) return;
       const transaction = db.transaction(['screenshots'], 'readwrite');
@@ -419,7 +422,6 @@
       transaction.oncomplete = () => renderGallery();
     }
 
-    // モーダル表示
     function openModal(url) {
       activeShareUrl = url;
       modalImg.src = url;
@@ -430,7 +432,6 @@
       modal.style.display = 'none';
     }
 
-    // スマホ標準の共有機能を呼び出す
     async function shareCurrentImage() {
       if (!activeShareUrl) return;
 
@@ -443,7 +444,7 @@
           await navigator.share({
             files: [file],
             title: 'あのスクショどこいった？',
-            text: '整理したスクショを共有するよ！'
+            text: 'スクショ迷子を救出せよ！'
           });
         } else {
           alert('お使いのブラウザは直接のファイル共有に対応していません。画像を長押しして保存・送信してください。');
