@@ -249,11 +249,10 @@
 
   <script>
     let db;
-    // デフォルトのジャンルリスト（ユーザーが後から自由に変更可能！）
-    let genres = JSON.parse(localStorage.getItem('custom_genres')) || [
-      '🍳 レシピ', '📰 ニュース', '🔤 英語', '🇨🇳 中国語', '🏠 物件', '🚨 もしもの時', '🌿 健康', '💡 法則', '📁 その他'
-    ];
-    let currentGenre = genres[0] || '📁 その他';
+    // 初期表示ジャンルを「レシピ」「行きたい場所」「欲しいもの」「豆知識」に更新！
+    let defaultGenres = ['🍳 レシピ', '📍 行きたい場所', '🛍️ 欲しいもの', '💡 豆知識'];
+    let genres = JSON.parse(localStorage.getItem('custom_genres')) || defaultGenres;
+    let currentGenre = genres[0] || '🍳 レシピ';
     let activeShareUrl = '';
 
     const fileInput = document.getElementById('file-input');
