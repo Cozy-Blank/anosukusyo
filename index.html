@@ -151,7 +151,7 @@
 <body>
 
   <!-- トップイラスト画像 -->
-  <img src="main-illust.jpg" alt="あのスクショどこいった？" class="header-banner" onerror="this.style.display='none'">
+  <img src="sukusyo.png" alt="あのスクショどこいった？" class="header-banner" onerror="this.style.display='none'">
 
   <!-- ジャンル選択タグ -->
   <div class="tag-container" id="tag-container">
@@ -210,6 +210,7 @@
     window.addEventListener('DOMContentLoaded', renderGallery);
 
     // 画像選択＆保存
+    // 画像選択＆自動圧縮保存
     fileInput.addEventListener('change', (e) => {
       const files = e.target.files;
       if (!files.length) return;
@@ -217,8 +218,26 @@
       Array.from(files).forEach(file => {
         const reader = new FileReader();
         reader.onload = (event) => {
-          saveImageToStorage(event.target.result, currentGenre);
-          renderGallery();
+          const img = new Image();
+          img.onload = () => {
+            // 画像をスマホ用にリサイズ・圧縮（横幅最大800px、画質70%）
+            const canvas = document.createElement('canvas');
+            const maxW = 800;
+            const scale = maxW / img.width;
+            const w = img.width > maxW ? maxW : img.width;
+            const h = img.width > maxW ? img.height * scale : img.height;
+
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+
+            // 軽量化した画像データを作成
+            const compressedUrl = canvas.toDataURL('image/jpeg', 0.7);
+            saveImageToStorage(compressedUrl, currentGenre);
+            renderGallery();
+          };
+          img.src = event.target.result;
         };
         reader.readAsDataURL(file);
       });
