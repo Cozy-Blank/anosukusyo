@@ -2,18 +2,23 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <!-- スマホ画面に完全最適化 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>あのスクショどこいった？</title>
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
     body {
-      background-color: #FDFBF7;
+      background-color: #FDFBF7; /* ウォームホワイト */
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       color: #333333;
     }
 
+    /* 1. ヘッダーイラスト画像 */
     .header-banner {
       width: 100%;
       max-height: 200px;
@@ -22,6 +27,7 @@
       border-bottom: 2px solid #CBB69D;
     }
 
+    /* 2. タグ選択エリア（スマホ横スクロール） */
     .tag-container {
       display: flex;
       gap: 8px;
@@ -37,40 +43,43 @@
       flex: 0 0 auto;
       padding: 8px 14px;
       border-radius: 20px;
-      border: 1px solid #CBB69D;
+      border: 1px solid #CBB69D; /* カフェラテカラー */
       background-color: #F5F2EB;
-      color: #4A5D4E;
+      color: #4A5D4E; /* 深みのあるグリーン */
       font-size: 13px;
       cursor: pointer;
       transition: all 0.2s ease;
     }
 
+    /* 選択中タグ（ボタニカル・アクセント） */
     .tag-btn.active {
-      background-color: #7C9885;
+      background-color: #7C9885; /* セージグリーン */
       color: #FFFFFF;
       border-color: #7C9885;
       font-weight: bold;
       box-shadow: 0 2px 5px rgba(124, 152, 133, 0.3);
     }
 
-    .upload-section { margin: 16px; }
+    /* 3. スクショ投稿エリア */
+    .upload-section { margin: 12px 16px; }
     .upload-area {
       border: 2px dashed #CBB69D;
       border-radius: 16px;
       background-color: #FAF8F5;
-      padding: 24px 16px;
+      padding: 20px 16px;
       text-align: center;
       color: #7C9885;
       font-weight: bold;
       cursor: pointer;
+      transition: background-color 0.2s ease;
     }
-
-    .upload-icon { font-size: 28px; margin-bottom: 6px; }
+    .upload-area:active { background-color: #F0ECE1; }
+    .upload-icon { font-size: 26px; margin-bottom: 4px; }
     .upload-text { font-size: 14px; display: block; }
     .upload-subtext { font-size: 11px; color: #888888; font-weight: normal; margin-top: 4px; display: block; }
     #file-input { display: none; }
 
-    /* スクショギャラリー */
+    /* 4. 画像ギャラリー（スマホ2列） */
     .gallery-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -93,46 +102,114 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      cursor: pointer;
+    }
+
+    /* 削除ボタン */
+    .delete-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .no-image {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+      padding: 40px 0;
+    }
+
+    /* 5. 拡大表示モーダル */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal img {
+      max-width: 90%;
+      max-height: 85%;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
 
+  <!-- トップイラスト画像 -->
   <img src="main-illust.jpg" alt="あのスクショどこいった？" class="header-banner" onerror="this.style.display='none'">
 
-  <div class="tag-container">
-    <button class="tag-btn active">🍳 レシピ</button>
-    <button class="tag-btn">📰 ニュース</button>
-    <button class="tag-btn">🔤 英語 (フォニックス)</button>
-    <button class="tag-btn">🇨🇳 中国語 (ピンイン/フォニックス意識)</button>
-    <button class="tag-btn">🏠 物件</button>
-    <button class="tag-btn">🚨 もしもの時</button>
-    <button class="tag-btn">🌿 健康</button>
-    <button class="tag-btn">💡 法則</button>
-    <button class="tag-btn">📁 その他</button>
+  <!-- ジャンル選択タグ -->
+  <div class="tag-container" id="tag-container">
+    <button class="tag-btn active" data-genre="レシピ">🍳 レシピ</button>
+    <button class="tag-btn" data-genre="ニュース">📰 ニュース</button>
+    <button class="tag-btn" data-genre="英語">🔤 英語 (フォニックス)</button>
+    <button class="tag-btn" data-genre="中国語">🇨🇳 中国語 (ピンイン/フォニックス意識)</button>
+    <button class="tag-btn" data-genre="物件">🏠 物件</button>
+    <button class="tag-btn" data-genre="もしもの時">🚨 もしもの時</button>
+    <button class="tag-btn" data-genre="健康">🌿 健康</button>
+    <button class="tag-btn" data-genre="法則">💡 法則</button>
+    <button class="tag-btn" data-genre="その他">📁 その他</button>
   </div>
 
+  <!-- 画像追加エリア -->
   <div class="upload-section">
     <label for="file-input">
       <div class="upload-area">
         <div class="upload-icon">📱✨</div>
-        <span class="upload-text">タップしてスクショを追加</span>
-        <span class="upload-subtext">またはここに画像をドラッグ＆ドロップ</span>
+        <span class="upload-text" id="upload-label">「レシピ」にスクショを追加</span>
+        <span class="upload-subtext">タップして画像を選択（ドラッグ＆ドロップ可）</span>
       </div>
     </label>
     <input type="file" id="file-input" accept="image/*" multiple>
   </div>
 
+  <!-- 画像表示エリア -->
   <div class="gallery-grid" id="gallery"></div>
 
-  <!-- 画像読み込み・表示用のJavaScript -->
+  <!-- 拡大プレビュー用モーダル -->
+  <div class="modal" id="modal" onclick="closeModal()">
+    <img id="modal-img" src="" alt="拡大表示">
+  </div>
+
   <script>
     const fileInput = document.getElementById('file-input');
     const gallery = document.getElementById('gallery');
+    const tagButtons = document.querySelectorAll('.tag-btn');
+    const uploadLabel = document.getElementById('upload-label');
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modal-img');
 
-    // ページ読み込み時に保存済み画像をロード
-    window.addEventListener('DOMContentLoaded', loadSavedImages);
+    let currentGenre = 'レシピ';
 
+    // タグ切り替え
+    tagButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tagButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentGenre = btn.getAttribute('data-genre');
+        uploadLabel.textContent = `「${currentGenre}」にスクショを追加`;
+        renderGallery();
+      });
+    });
+
+    window.addEventListener('DOMContentLoaded', renderGallery);
+
+    // 画像選択＆保存
     fileInput.addEventListener('change', (e) => {
       const files = e.target.files;
       if (!files.length) return;
@@ -140,34 +217,62 @@
       Array.from(files).forEach(file => {
         const reader = new FileReader();
         reader.onload = (event) => {
-          const imageDataUrl = event.target.result;
-          displayImage(imageDataUrl);
-          saveImageToStorage(imageDataUrl);
+          saveImageToStorage(event.target.result, currentGenre);
+          renderGallery();
         };
         reader.readAsDataURL(file);
       });
+      fileInput.value = '';
     });
 
-    function displayImage(url) {
-      const item = document.createElement('div');
-      item.className = 'gallery-item';
-      item.innerHTML = `<img src="${url}" alt="スクショ">`;
-      gallery.prepend(item); // 新しい画像を先頭に追加
-    }
-
-    function saveImageToStorage(url) {
-      const saved = JSON.parse(localStorage.getItem('my_screenshots') || '[]');
-      saved.push(url);
+    function saveImageToStorage(url, genre) {
+      const saved = JSON.parse(localStorage.getItem('my_screenshots_v3') || '[]');
+      saved.push({ id: Date.now() + Math.random(), url: url, genre: genre });
       try {
-        localStorage.setItem('my_screenshots', JSON.stringify(saved));
+        localStorage.setItem('my_screenshots_v3', JSON.stringify(saved));
       } catch (err) {
-        alert('容量の上限に達したため、これ以上ローカル保存できません。');
+        alert('容量がいっぱいです。不要な画像を削除してください。');
       }
     }
 
-    function loadSavedImages() {
-      const saved = JSON.parse(localStorage.getItem('my_screenshots') || '[]');
-      saved.forEach(url => displayImage(url));
+    // 画像削除機能
+    function deleteImage(id) {
+      if (!confirm('このスクショを削除しますか？')) return;
+      let saved = JSON.parse(localStorage.getItem('my_screenshots_v3') || '[]');
+      saved = saved.filter(item => item.id !== id);
+      localStorage.setItem('my_screenshots_v3', JSON.stringify(saved));
+      renderGallery();
+    }
+
+    // ギャラリー描画
+    function renderGallery() {
+      gallery.innerHTML = '';
+      const saved = JSON.parse(localStorage.getItem('my_screenshots_v3') || '[]');
+      const filtered = saved.filter(item => item.genre === currentGenre);
+
+      if (filtered.length === 0) {
+        gallery.innerHTML = `<div class="no-image">「${currentGenre}」のスクショはまだありません</div>`;
+        return;
+      }
+
+      filtered.reverse().forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'gallery-item';
+        div.innerHTML = `
+          <img src="${item.url}" alt="スクショ" onclick="openModal('${item.url}')">
+          <button class="delete-btn" onclick="deleteImage(${item.id})">✕</button>
+        `;
+        gallery.appendChild(div);
+      });
+    }
+
+    // 拡大表示＆閉じる
+    function openModal(url) {
+      modalImg.src = url;
+      modal.style.display = 'flex';
+    }
+    function closeModal() {
+      modal.style.display = 'none';
     }
   </script>
 </body>
