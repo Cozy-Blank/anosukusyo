@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>あのスクショどこいった？</title>
+  <style>
+    /* 全体の背景色 */
+    body {
+      background-color: #FDFBF7;
+      margin: 0;
+      font-family: sans-serif;
+    }
+
+    /* 全体のコンテナ */
+    .tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 16px;
+      background-color: #FDFBF7; /* ウォームホワイト */
+    }
+
+    /* 基本のタグボタン（未選択時） */
+    .tag-btn {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid #CBB69D; /* カフェラテカラーの枠線 */
+      background-color: #F5F2EB;
+      color: #4A5D4E; /* 深みのあるグリーン文字 */
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    /* 選択されている時のスタイル */
+    .tag-btn.active {
+      background-color: #7C9885; /* セージグリーン */
+      color: #FFFFFF; /* 白文字 */
+      border-color: #7C9885;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(124, 152, 133, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- タグ表示エリア -->
+  <div class="tag-container">
+    <button class="tag-btn active">🍳 レシピ</button>
+    <button class="tag-btn">📰 ニュース</button>
+    <button class="tag-btn">🔤 英語</button>
+    <button class="tag-btn">🇨🇳 中国語</button>
+    <button class="tag-btn">🏠 物件</button>
+    <button class="tag-btn">🚨 もしもの時</button>
+    <button class="tag-btn">🌿 健康</button>
+    <button class="tag-btn">💡 法則</button>
+    <button class="tag-btn">📁 その他</button>
+  </div>
+
+</body>
+</html>
