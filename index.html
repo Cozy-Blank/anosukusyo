@@ -5,15 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>あのスクショどこいった？</title>
 
-  <!-- OGP（SNS共有時の設定） -->
+  <!-- スマホのホーム画面に追加した時のアイコン -->
+  <link rel="apple-touch-icon" href="kyouyuurinku.png">
+
+  <!-- OGP（SNSやLINE共有時の表示設定） -->
   <meta property="og:title" content="あのスクショどこいった？">
   <meta property="og:description" content="スクショ迷子を救出せよ！">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="main-illust.jpg">
+  <meta property="og:image" content="kyouyuurinku.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="あのスクショどこいった？">
   <meta name="twitter:description" content="スクショ迷子を救出せよ！">
-  <meta name="twitter:image" content="main-illust.jpg">
+  <meta name="twitter:image" content="kyouyuurinku.png">
 
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -33,7 +36,6 @@
       border-bottom: 2px solid #3D312A;
     }
 
-    /* タグ（ジャンル）エリア */
     .tag-container {
       display: flex;
       gap: 8px;
@@ -69,7 +71,6 @@
       box-shadow: 0 2px 5px rgba(61, 49, 42, 0.2);
     }
 
-    /* ジャンル追加ボタン */
     .add-tag-btn {
       flex: 0 0 auto;
       padding: 8px 14px;
@@ -82,7 +83,6 @@
       cursor: pointer;
     }
 
-    /* ジャンル削除ボタン */
     .delete-tag-icon {
       font-size: 10px;
       opacity: 0.6;
@@ -109,7 +109,6 @@
     .upload-subtext { font-size: 11px; color: #8C7B70; font-weight: normal; margin-top: 4px; display: block; }
     #file-input { display: none; }
 
-    /* 案内メッセージボックス */
     .info-notice-box {
       margin: 10px 16px 16px 16px;
       padding: 10px 14px;
@@ -175,7 +174,6 @@
       padding: 40px 0;
     }
 
-    /* 拡大プレビュー＆共有モーダル */
     .modal {
       display: none;
       position: fixed;
@@ -228,7 +226,6 @@
 
   <img src="main-illust.jpg" alt="あのスクショどこいった？" class="header-banner" onerror="this.style.display='none'">
 
-  <!-- 動的に生成されるジャンル（タグ）エリア -->
   <div class="tag-container" id="tag-container"></div>
 
   <div class="upload-section">
@@ -249,7 +246,6 @@
 
   <div class="gallery-grid" id="gallery"></div>
 
-  <!-- 拡大表示＆共有機能用モーダル -->
   <div class="modal" id="modal">
     <img id="modal-img" src="" alt="拡大スクショ">
     <div class="modal-actions">
@@ -272,7 +268,6 @@
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modal-img');
 
-    // データベース初期化
     const request = indexedDB.open('ScreenshotAppDB', 1);
 
     request.onupgradeneeded = (e) => {
@@ -288,7 +283,6 @@
       renderGallery();
     };
 
-    // タグ（ジャンル）ボタンを描画
     function renderTags() {
       tagContainer.innerHTML = '';
 
