@@ -70,6 +70,22 @@
     .upload-subtext { font-size: 11px; color: #888888; font-weight: normal; margin-top: 4px; display: block; }
     #file-input { display: none; }
 
+    /* --- Version A: セージ・ナチュラルの案内メッセージボックス --- */
+    .info-notice-box {
+      margin: 10px 16px 16px 16px;
+      padding: 10px 14px;
+      background-color: #FAF8F5; /* 柔らかいライトベージュ */
+      border: 1px solid #7C9885;  /* セージグリーン */
+      border-radius: 10px;
+      color: #4A5D4E;             /* ディープグリーン（文字） */
+      font-size: 12px;
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .info-notice-icon { font-size: 15px; flex-shrink: 0; }
+
     .gallery-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -120,16 +136,53 @@
       padding: 40px 0;
     }
 
+    /* 拡大プレビュー＆共有モーダル */
     .modal {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.88);
       z-index: 1000;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
+      padding: 20px;
     }
-    .modal img { max-width: 90%; max-height: 85%; border-radius: 8px; }
+
+    .modal img {
+      max-width: 90%;
+      max-height: 70vh;
+      border-radius: 12px;
+      object-fit: contain;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .modal-actions {
+      margin-top: 16px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .action-btn {
+      padding: 10px 20px;
+      border-radius: 25px;
+      border: none;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+    .action-btn:active { transform: scale(0.95); }
+
+    .share-btn {
+      background-color: #7C9885;
+      color: #FFFFFF;
+    }
+
+    .close-btn {
+      background-color: #E5DFD5;
+      color: #4A5D4E;
+    }
   </style>
 </head>
 <body>
@@ -153,21 +206,33 @@
       <div class="upload-area">
         <div class="upload-icon">📱✨</div>
         <span class="upload-text" id="upload-label">「レシピ」にスクショを追加</span>
-        <span class="upload-subtext">タップして画像を選択（大容量保存に対応！）</span>
+        <span class="upload-subtext">タップして画像を選択</span>
       </div>
     </label>
     <input type="file" id="file-input" accept="image/*" multiple>
   </div>
 
+  <!-- ★ Version A: セージ・ナチュラルの案内メッセージ ★ -->
+  <div class="info-notice-box">
+    <span class="info-notice-icon">💡</span>
+    <span>アプリに取り込んだスクショは、スマホの本体アルバムから削除すると端末の容量を節約できるよ！</span>
+  </div>
+
   <div class="gallery-grid" id="gallery"></div>
 
-  <div class="modal" id="modal" onclick="closeModal()">
-    <img id="modal-img" src="" alt="拡大表示">
+  <!-- 拡大表示＆共有機能用モーダル -->
+  <div class="modal" id="modal">
+    <img id="modal-img" src="" alt="拡大スクショ">
+    <div class="modal-actions">
+      <button class="action-btn share-btn" onclick="shareCurrentImage()">📤 誰かに共有する</button>
+      <button class="action-btn close-btn" onclick="closeModal()">閉じる</button>
+    </div>
   </div>
 
   <script>
     let db;
     let currentGenre = 'レシピ';
+    let activeShareUrl = '';
 
     const fileInput = document.getElementById('file-input');
     const gallery = document.getElementById('gallery');
@@ -176,7 +241,7 @@
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modal-img');
 
-    // 1. 大容量データベース IndexedDB の初期化
+    // データベース初期化
     const request = indexedDB.open('ScreenshotAppDB', 1);
 
     request.onupgradeneeded = (e) => {
@@ -202,19 +267,26 @@
       });
     });
 
-    // 画像追加＆保存
+    // 重複防止処理付きファイル選択
     fileInput.addEventListener('change', (e) => {
-      const files = e.target.files;
+      const files = Array.from(e.target.files);
       if (!files.length) return;
 
-      Array.from(files).forEach(file => {
+      let processedCount = 0;
+
+      files.forEach(file => {
         const reader = new FileReader();
         reader.onload = (event) => {
           const transaction = db.transaction(['screenshots'], 'readwrite');
           const store = transaction.objectStore('screenshots');
           store.add({ url: event.target.result, genre: currentGenre, timestamp: Date.now() });
           
-          transaction.oncomplete = () => renderGallery();
+          transaction.oncomplete = () => {
+            processedCount++;
+            if (processedCount === files.length) {
+              renderGallery();
+            }
+          };
         };
         reader.readAsDataURL(file);
       });
@@ -259,12 +331,38 @@
       transaction.oncomplete = () => renderGallery();
     }
 
+    // モーダル表示
     function openModal(url) {
+      activeShareUrl = url;
       modalImg.src = url;
       modal.style.display = 'flex';
     }
+
     function closeModal() {
       modal.style.display = 'none';
+    }
+
+    // スマホ標準の共有機能を呼び出す
+    async function shareCurrentImage() {
+      if (!activeShareUrl) return;
+
+      try {
+        const res = await fetch(activeShareUrl);
+        const blob = await res.blob();
+        const file = new File([blob], 'screenshot.png', { type: 'image/png' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'あのスクショどこいった？',
+            text: '整理したスクショを共有するよ！'
+          });
+        } else {
+          alert('お使いのブラウザは直接のファイル共有に対応していません。画像を長押しして保存・送信してください。');
+        }
+      } catch (err) {
+        console.error('共有エラー:', err);
+      }
     }
   </script>
 </body>
