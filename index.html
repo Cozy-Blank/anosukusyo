@@ -2,60 +2,163 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- スマホの画面幅にぴったり合わせる設定 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>あのスクショどこいった？</title>
   <style>
-    /* 全体の背景色 */
+    * {
+      box-sizing: border-box;
+    }
     body {
-      background-color: #FDFBF7;
+      background-color: #FDFBF7; /* ウォームホワイト */
       margin: 0;
-      font-family: sans-serif;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #333333;
     }
 
-    /* 全体のコンテナ */
+    /* 上部イラスト画像（スマホにフィット） */
+    .header-banner {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      display: block;
+      border-bottom: 2px solid #CBB69D;
+    }
+
+    /* タグ一覧（スマホで横スクロール可能に） */
     .tag-container {
       display: flex;
-      flex-wrap: wrap;
       gap: 8px;
-      padding: 16px;
-      background-color: #FDFBF7; /* ウォームホワイト */
+      padding: 12px 16px;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+      background-color: #FDFBF7;
     }
 
-    /* 基本のタグボタン（未選択時） */
+    /* スクロールバーを隠してすっきり見せる設定 */
+    .tag-container::-webkit-scrollbar {
+      display: none;
+    }
+
     .tag-btn {
-      padding: 8px 16px;
+      flex: 0 0 auto;
+      padding: 8px 14px;
       border-radius: 20px;
-      border: 1px solid #CBB69D; /* カフェラテカラーの枠線 */
+      border: 1px solid #CBB69D; /* カフェラテカラー */
       background-color: #F5F2EB;
-      color: #4A5D4E; /* 深みのあるグリーン文字 */
-      font-size: 14px;
+      color: #4A5D4E; /* 深みのあるグリーン */
+      font-size: 13px;
       cursor: pointer;
       transition: all 0.2s ease;
     }
 
-    /* 選択されている時のスタイル */
+    /* 選択中のタグ（ボタニカル・アクセント） */
     .tag-btn.active {
       background-color: #7C9885; /* セージグリーン */
-      color: #FFFFFF; /* 白文字 */
+      color: #FFFFFF;
       border-color: #7C9885;
       font-weight: bold;
       box-shadow: 0 2px 5px rgba(124, 152, 133, 0.3);
+    }
+
+    /* スマホでタップしやすいスクショ貼り付け・追加エリア */
+    .upload-section {
+      margin: 16px;
+    }
+
+    .upload-area {
+      border: 2px dashed #CBB69D;
+      border-radius: 16px;
+      background-color: #FAF8F5;
+      padding: 24px 16px;
+      text-align: center;
+      color: #7C9885;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .upload-area:active {
+      background-color: #F0ECE1;
+    }
+
+    .upload-icon {
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+
+    .upload-text {
+      font-size: 14px;
+      display: block;
+    }
+
+    .upload-subtext {
+      font-size: 11px;
+      color: #888888;
+      font-weight: normal;
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* 非表示のファイル入力 */
+    #file-input {
+      display: none;
+    }
+
+    /* スクショが並ぶプレビューギャラリー */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr); /* スマホ画面で2列表示 */
+      gap: 12px;
+      padding: 0 16px 32px 16px;
+    }
+
+    .gallery-item {
+      width: 100%;
+      aspect-ratio: 9 / 16; /* スマホスクショの縦長比率 */
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      border: 1px solid #E5DFD5;
     }
   </style>
 </head>
 <body>
 
-  <!-- タグ表示エリア -->
+  <!-- 1. トップのイラスト画像 -->
+  <!-- ※イラスト画像を「main-illust.jpg」という名前で同じフォルダに保存してね -->
+  <img src="sukusyo.png" alt="あのスクショどこいった？" class="header-banner" onerror="this.style.display='none'">
+
+  <!-- 2. ジャンル選択タグ（スマホで横スライドできます） -->
   <div class="tag-container">
     <button class="tag-btn active">🍳 レシピ</button>
     <button class="tag-btn">📰 ニュース</button>
-    <button class="tag-btn">🔤 英語</button>
-    <button class="tag-btn">🇨🇳 中国語</button>
+    <button class="tag-btn">🔤 英語 (フォニックス)</button>
+    <button class="tag-btn">🇨🇳 中国語 (ピンイン/フォニックス意識)</button>
     <button class="tag-btn">🏠 物件</button>
     <button class="tag-btn">🚨 もしもの時</button>
     <button class="tag-btn">🌿 健康</button>
     <button class="tag-btn">💡 法則</button>
     <button class="tag-btn">📁 その他</button>
+  </div>
+
+  <!-- 3. スクショ貼り付け・ファイル選択エリア -->
+  <div class="upload-section">
+    <label for="file-input">
+      <div class="upload-area">
+        <div class="upload-icon">📱✨</div>
+        <span class="upload-text">タップしてスクショを追加</span>
+        <span class="upload-subtext">またはここに画像をドラッグ＆ドロップ</span>
+      </div>
+    </label>
+    <input type="file" id="file-input" accept="image/*" multiple>
+  </div>
+
+  <!-- 4. 保存したスクショ一覧表示エリア -->
+  <div class="gallery-grid" id="gallery">
+    <!-- ここに選択した画像がどんどん追加されます -->
   </div>
 
 </body>
